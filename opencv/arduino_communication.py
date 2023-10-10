@@ -11,8 +11,8 @@ class arduinoCommunication:
     def __init__(self, key) :
         self.hands = handDetection()  
         self.key = key  
-        #self.arduino = serial.Serial('COM5', 9600)
-        #time.sleep(1) #give the connection a second to settle
+        self.arduino = serial.Serial('COM5', 9600)
+        time.sleep(1) #give the connection a second to settle
     def transfer_data(self):
         while not self.key.esc:
             success, img = self.hands.cap.read()
@@ -23,9 +23,9 @@ class arduinoCommunication:
                 fingerCount, dist = self.hands.hand_gester_detection(img)
 
                 if self.key.task1_status:
-                    #string = "L" + " " + str(fingerCount)
-                    #self.arduino.write(string.encode())
-                    #time.sleep(0.05)
+                    string = "L" + " " + str(fingerCount)
+                    self.arduino.write(string.encode())
+                    time.sleep(0.05)
                     cv2.putText(img, str(fingerCount), (150, 150), cv2.FONT_HERSHEY_PLAIN, 12, (255, 0, 0), 12)
                     
                 elif self.key.task2_status:
@@ -38,35 +38,35 @@ class arduinoCommunication:
                         range = 6
                     else:
                         range = 9
-                    #string = "S" + " " + str(range)
-                    #self.arduino.write(string.encode())
-                    #time.sleep(0.05)
+                    string = "S" + " " + str(range)
+                    self.arduino.write(string.encode())
+                    time.sleep(0.05)
                     cv2.putText(img, str(dist), (50, 200), cv2.FONT_HERSHEY_PLAIN, 5, (255, 0, 0), 12)
-                #elif self.key.temperature_read:
-                #    self.arduino.write("T".encode())
-                #    time.sleep(0.05)
-                #    self.receive_data()
-                #elif self.key.LDR_read:
-                #   self.arduino.write("B".encode())
-                #    time.sleep(0.05)
-                #    self.receive_data()
+                elif self.key.temperature_read:
+                    self.arduino.write("T".encode())
+                    time.sleep(0.05)
+                    self.receive_data()
+                elif self.key.LDR_read:
+                    self.arduino.write("B".encode())
+                    time.sleep(0.05)
+                    self.receive_data()
             except:
                 pass                        
             cv2.imshow("Finger Counter", img)
             key = cv2.waitKey(10) & 0xFF
             self.key.keyInput(key)
         else:
-            #self.arduino.close()
+            self.arduino.close()
             self.hands.cap.release()
             cv2.destroyAllWindows() 
 
        
-    #def receive_data(self):
+    def receive_data(self):
         
-    #    data = self.arduino.readline().decode('ascii')
-    #    if data:
-    #        if self.key.temperature_read:
-    #            print(f"temperature sensor reading : {data}")
-    #        else:
-    #            print(f"LDR sensor reading : {data}")
+        data = self.arduino.readline().decode('ascii')
+        if data:
+            if self.key.temperature_read:
+                print(f"temperature sensor reading : {data}")
+            else:
+                print(f"LDR sensor reading : {data}")
 
